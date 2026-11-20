@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Sindong Island</title>
+    <meta
+      name="description"
+      content="신동 아일랜드 — 학생들이 함께 접속해 3D 블록을 쌓고 다양한 모양을 만드는 실시간 복셀 섬"
+    />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Favicons & App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / Apple Messages / WhatsApp / Discord -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sindong Island" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="Sindong Island" />
+    <meta
+      property="og:description"
+      content="신동 아일랜드 — 학생들이 함께 접속해 3D 블록을 쌓고 다양한 모양을 만드는 실시간 복셀 섬"
+    />
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sindong Island" />
+    <meta
+      name="twitter:description"
+      content="신동 아일랜드 — 학생들이 함께 접속해 3D 블록을 쌓고 다양한 모양을 만드는 실시간 복셀 섬"
+    />
+
+    <!-- Apple Web App -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Sindong Island" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!-- Endless Animated Sunlit Grass Voxel Canvas -->
+    <canvas id="world-canvas" aria-label="Shared animated 3D voxel grass world"></canvas>
+
+    <!-- Camera Controls (Desktop + Mobile: Pan / Orbit / Walk + Recentre) -->
+    <div id="cam-controls" class="cam-controls" role="toolbar" aria-label="Camera controls">
+      <div class="cam-mode-group" role="group" aria-label="Camera mode">
+        <button
+          type="button"
+          id="cam-pan-btn"
+          class="cam-mode-btn is-active"
+          aria-pressed="true"
+          title="Move camera"
+        >
+          <svg class="cam-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" />
+          </svg>
+          <span>Pan</span>
+        </button>
+        <button
+          type="button"
+          id="cam-orbit-btn"
+          class="cam-mode-btn"
+          aria-pressed="false"
+          title="Spin and tilt camera"
+        >
+          <svg class="cam-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+            <polyline points="21 3 21 9 15 9" />
+          </svg>
+          <span>Orbit</span>
+        </button>
+        <button
+          type="button"
+          id="cam-walk-btn"
+          class="cam-mode-btn"
+          aria-pressed="false"
+          title="Walk in first person"
+        >
+          <svg class="cam-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="4.5" r="2" />
+            <path d="M8.5 20.5L10.8 14l3.2 2.8.6 3.7" />
+            <path d="M10.8 14l1-5.2" />
+            <path d="M7.5 12.4l3.8-3.4 3.4 1 2.3 2.2" />
+          </svg>
+          <span>Walk</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        id="recenter-btn"
+        class="cam-recenter-btn"
+        aria-label="Recentre camera"
+        title="Recentre camera"
+      >
+        <svg class="cam-icon cam-compass-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" stroke-opacity="0.35" />
+          <g id="recenter-compass">
+            <polygon points="12,4.2 14.7,12 9.3,12" fill="#d94e43" />
+            <polygon points="12,19.8 14.7,12 9.3,12" fill="currentColor" fill-opacity="0.55" />
+          </g>
+        </svg>
+        <span>Recentre</span>
+      </button>
+
+      <button
+        type="button"
+        id="avatar-btn"
+        class="cam-recenter-btn cam-avatar-btn"
+        aria-label="Customize character"
+        title="Customize character"
+      >
+        <svg class="cam-icon cam-avatar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="7.5" y="3.5" width="9" height="8" rx="2" />
+          <path d="M5.5 20.5v-2.2a3.8 3.8 0 0 1 3.8-3.8h5.4a3.8 3.8 0 0 1 3.8 3.8v2.2" />
+        </svg>
+        <span class="avatar-swatch-dot" id="avatar-swatch-dot" aria-hidden="true"></span>
+        <span>Character</span>
+      </button>
+
+      <div id="online-pill" class="online-pill" title="Players online" hidden>
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="online-count">1</span>
+      </div>
+    </div>
+
+    <!-- Hover nameplate + optional live API readout -->
+    <div id="hover-card" class="hover-card" hidden>
+      <div id="hover-name" class="hover-name"></div>
+      <div id="hover-feed" class="hover-feed" hidden></div>
+      <div id="hover-status" class="hover-status"></div>
+    </div>
+
+    <!-- Transient world note -->
+    <div id="weave-toast" class="weave-toast" role="status" aria-live="polite" hidden></div>
+
+    <!-- Mobile First-Person Walk Joystick (forward/back + strafe) -->
+    <div id="walk-joystick" class="walk-joystick" aria-label="Walk movement joystick" hidden>
+      <svg class="walk-joystick-svg" viewBox="-64 -64 128 128" fill="none" aria-hidden="true">
+        <circle cx="0" cy="0" r="55" stroke="#161b18" stroke-opacity="0.1" stroke-width="1.2" />
+        <polyline id="walk-joy-up" class="walk-joy-chevron" points="-7,-41 0,-49 7,-41" />
+        <polyline id="walk-joy-down" class="walk-joy-chevron" points="-7,41 0,49 7,41" />
+        <polyline id="walk-joy-left" class="walk-joy-chevron" points="-41,-7 -49,0 -41,7" />
+        <polyline id="walk-joy-right" class="walk-joy-chevron" points="41,-7 49,0 41,7" />
+        <g id="walk-joystick-knob" transform="translate(0 0)">
+          <circle cx="0" cy="3" r="22" fill="#0f1c12" fill-opacity="0.22" />
+          <circle cx="0" cy="0" r="21.5" fill="#ffffff" stroke="#161b18" stroke-opacity="0.18" stroke-width="1.5" />
+          <circle cx="0" cy="0" r="7.5" fill="#161b18" fill-opacity="0.07" stroke="#161b18" stroke-opacity="0.22" stroke-width="1.4" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- Subtle First-Person Exit Hint (Desktop Walk Mode) -->
+    <button type="button" id="walk-esc-hint" class="walk-esc-hint" aria-label="Press Escape to exit first-person view" hidden>
+      <kbd class="walk-esc-key">Esc</kbd><span>to exit view</span>
+    </button>
+
+    <!-- Contextual First-Person Interaction Prompt -->
+    <button type="button" id="interact-prompt" class="interact-prompt" hidden>
+      <kbd id="interact-key" class="interact-key">E</kbd><span id="interact-label">Enter</span>
+    </button>
+
+    <!-- Bottom-Anchored Explore & Build Dock (never blocks the 3D meadow) -->
+    <div class="bottom-dock">
+      <!-- 1. Explore-first action row: Block Builder + Plaza + AI Add / Locate -->
+      <div id="dock-action-row" class="dock-action-row">
+        <button type="button" id="block-mode-btn" class="dock-pill dock-pill-blocks">
+          <svg class="dock-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2.5 20.5 7.2v9.6L12 21.5l-8.5-4.7V7.2L12 2.5z" />
+            <path d="M12 21.5V12" />
+            <path d="M20.5 7.2 12 12 3.5 7.2" />
+          </svg>
+          <span>블록 쌓기</span>
+        </button>
+
+        <button type="button" id="goto-plaza-btn" class="dock-pill dock-pill-plaza" title="신동 블록 광장으로 이동">
+          <svg class="dock-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>블록 광장</span>
+        </button>
+
+        <button type="button" id="add-btn" class="dock-pill dock-pill-add">
+          + AI 추가
+        </button>
+
+        <button type="button" id="locate-mine-btn" class="dock-pill dock-pill-placed" hidden>
+          <span class="live-dot" aria-hidden="true"></span>
+          <span id="locate-mine-label">Locate yours</span>
+        </button>
+      </div>
+
+      <!-- 1b. Collapsible Collaborative Block Studio Dock -->
+      <section id="block-studio" class="block-studio" aria-label="신동 블록 스튜디오" hidden>
+        <div class="bs-topbar">
+          <button
+            type="button"
+            id="block-collapse-btn"
+            class="bs-topbar-toggle"
+            aria-expanded="true"
+            title="도구 접기/펼치기 (H)"
+          >
+            <svg class="bs-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            <span>블록 스튜디오</span>
+          </button>
+
+          <span class="bs-hint">클릭 쌓기 · 우클릭 지우기 · R 회전 · 드래그 이동</span>
+
+          <div class="bs-topbar-right">
+            <span id="block-count-text" class="bs-count">블록 0개</span>
+            <button type="button" id="block-close-btn" class="icon-close-btn bs-close-btn" aria-label="블록 쌓기 종료" title="닫기 (Esc)">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <div id="block-studio-panel" class="bs-panel">
+          <!-- Tool row -->
+          <div class="bs-row bs-row-tools">
+            <div id="block-tools-row" class="bs-seg" role="group" aria-label="블록 도구">
+              <button type="button" class="bs-seg-btn is-active" data-bs-tool="place" aria-pressed="true">쌓기</button>
+              <button type="button" class="bs-seg-btn" data-bs-tool="erase" aria-pressed="false">지우기</button>
+              <button type="button" class="bs-seg-btn" data-bs-tool="paint" aria-pressed="false">색칠</button>
+              <button type="button" class="bs-seg-btn" data-bs-tool="eyedropper" aria-pressed="false">스포이드</button>
+              <button type="button" class="bs-seg-btn" data-bs-tool="stamp" aria-pressed="false">모양 도장</button>
+            </div>
+
+            <div class="bs-actions">
+              <button type="button" id="block-rotate-btn" class="bs-act-btn" title="90도 회전 (R)">
+                <svg class="bs-act-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
+                  <polyline points="21 3 21 8 16 8" />
+                </svg>
+                <span id="block-rotate-label">0°</span>
+              </button>
+
+              <button type="button" id="block-undo-btn" class="bs-act-btn" disabled title="실행 취소 (Ctrl+Z)">
+                <svg class="bs-act-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 14 4 9 9 4" />
+                  <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+                </svg>
+                <span>취소</span>
+              </button>
+
+              <button type="button" id="block-plaza-btn" class="bs-act-btn" title="신동 블록 광장으로 이동">
+                <span>광장</span>
+              </button>
+
+              <button type="button" id="block-sound-btn" class="bs-act-btn bs-icon-only" aria-pressed="true" title="블록 소리 켜기/끄기">
+                <svg id="block-sound-on-icon" class="bs-act-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                </svg>
+                <svg id="block-sound-off-icon" class="bs-act-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <line x1="23" y1="9" x2="17" y2="15" />
+                  <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              </button>
+
+              <button type="button" id="block-clear-btn" class="bs-act-btn bs-act-danger" title="내가 쌓은 블록 정리">
+                내 블록 정리
+              </button>
+            </div>
+          </div>
+
+          <!-- Contextual Shape / Stamp + Material row -->
+          <div id="block-options-row" class="bs-row bs-row-options">
+            <div id="block-shapes-group" class="bs-sub-group">
+              <span class="bs-group-label">모양</span>
+              <div id="block-shapes-row" class="bs-chips" role="group" aria-label="블록 모양"></div>
+            </div>
+
+            <div id="block-stamps-group" class="bs-sub-group" hidden>
+              <span class="bs-group-label">도장</span>
+              <div id="block-stamps-row" class="bs-chips" role="group" aria-label="모양 도장"></div>
+            </div>
+
+            <div id="block-materials-group" class="bs-sub-group">
+              <span class="bs-group-label">재질</span>
+              <div id="block-materials-row" class="bs-chips" role="group" aria-label="블록 재질"></div>
+            </div>
+          </div>
+
+          <!-- Palette + Student Name row -->
+          <div id="block-palette-row" class="bs-row bs-row-palette">
+            <div id="block-colors-row" class="bs-swatches" role="group" aria-label="블록 색상"></div>
+            <label class="bs-student-wrap">
+              <span class="bs-group-label">이름</span>
+              <input
+                type="text"
+                id="student-name-input"
+                class="bs-name-input"
+                maxlength="16"
+                placeholder="내 이름 (예: 민수)"
+                autocomplete="off"
+              />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Spot-picking prompt pill -->
+      <div id="pick-spot-pill" class="dock-pill dock-pill-pick" hidden>
+        <span>Click where to add</span>
+        <button type="button" id="cancel-pick-btn" class="icon-close-btn" aria-label="Cancel spot selection">
+          &times;
+        </button>
+      </div>
+
+      <!-- 3. Compact bottom building box -->
+      <section id="bottom-builder" class="bottom-builder" aria-label="Add creation" hidden>
+        <div class="builder-bar">
+          <button type="button" id="move-spot-btn" class="spot-chip-btn">Move spot</button>
+          <button type="button" id="close-builder-btn" class="icon-close-btn" aria-label="Close">
+            &times;
+          </button>
+        </div>
+
+        <div class="builder-row">
+          <label id="drop-zone" class="drop-tile" for="image-input" title="Upload image">
+            <input id="image-input" type="file" accept="image/*" hidden />
+            <div id="drop-empty" class="drop-tile-empty">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="3" />
+                <circle cx="8.5" cy="9.5" r="1.5" />
+                <path d="M21 15l-4.5-4.5L9 18" />
+              </svg>
+              <span>Photo</span>
+            </div>
+            <div id="drop-preview-wrap" class="drop-preview-wrap" hidden>
+              <img id="drop-preview-img" alt="Selected subject" />
+              <button type="button" id="clear-image-btn" class="clear-img-btn" aria-label="Remove image">
+                &times;
+              </button>
+            </div>
+          </label>
+
+          <textarea
+            id="prompt-input"
+            rows="2"
+            maxlength="480"
+            placeholder="Describe what to add…"
+            aria-label="Describe what to add"
+          ></textarea>
+        </div>
+
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+
+        <p class="upload-disclaimer">
+          By using this feature, you confirm that you have the necessary rights to any content that you upload. Do not generate content that infringes on others’ intellectual property or privacy rights. Your use of this generative AI service is subject to our <a href="https://policies.google.com/terms/generative-ai/use-policy" target="_blank" rel="noopener noreferrer">Prohibited Use Policy</a>. Please note that uploads, including those from Google Workspace, may be used to develop and improve Google products and services in accordance with our <a href="https://aistudio.google.com/docs/terms?e=0" target="_blank" rel="noopener noreferrer">terms</a>.
+        </p>
+
+        <button type="button" id="sculpt-btn" class="primary-btn">Build</button>
+      </section>
+
+      <!-- 4. Building in background pill -->
+      <div id="building-pill" class="dock-pill dock-pill-building" role="status" aria-live="polite" hidden>
+        <span class="pill-spinner" aria-hidden="true"></span>
+        <span class="building-pill-copy">
+          <span id="building-pill-label" class="building-pill-title">Approving query…</span>
+          <span id="building-pill-sub" class="building-pill-sub">Being built with Gemini 4 Hydrogen</span>
+        </span>
+      </div>
+
+      <!-- 5. Ready -> Click to fly camera to it -->
+      <button type="button" id="ready-goto-btn" class="dock-pill dock-pill-ready" hidden>
+        <span class="live-dot live-dot-pulse" aria-hidden="true"></span>
+        <span id="ready-goto-label">Ready · Go to creation</span>
+      </button>
+    </div>
+
+    <dialog id="avatar-dialog" class="avatar-dialog" closedby="any" aria-label="Character customizer"></dialog>
+
+    <script type="module" src="/client/app.js"></script>
+  </body>
+</html>
